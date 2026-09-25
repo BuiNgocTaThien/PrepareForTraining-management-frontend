@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background squircle -->
+  <rect width="512" height="512" rx="140" ry="140" fill="#e5b4b5" />
+  
+  <!-- Solid white P shape -->
+  <path d="M 158 358 
+           V 198 
+           A 40 40 0 0 1 198 158 
+           H 318 
+           A 75 75 0 0 1 393 233 
+           V 233
+           A 75 75 0 0 1 318 308 
+           H 208 
+           V 358 
+           Z" fill="#ffffff" />
+           
+
+</svg>
