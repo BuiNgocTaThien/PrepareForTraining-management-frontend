@@ -111,6 +111,25 @@ export function ProjectList({ projects, onTogglePin, onToggleStar, onArchive, on
               <p className="mt-1.5 font-body-sm text-body-sm text-text-body line-clamp-2">
                 {project.description || "Chưa có mô tả"}
               </p>
+
+              <div className="mt-4 flex items-center gap-4 text-text-muted">
+                <div className="flex items-center gap-1.5" title="Số lượng hình ảnh">
+                  <span className="material-symbols-outlined text-[16px]">image</span>
+                  <span className="font-label-xs text-label-xs font-medium">{project.imageCount || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5" title="Số lượng tài liệu">
+                  <span className="material-symbols-outlined text-[16px]">description</span>
+                  <span className="font-label-xs text-label-xs font-medium">{project.documentCount || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5" title="Số lượng video">
+                  <span className="material-symbols-outlined text-[16px]">movie</span>
+                  <span className="font-label-xs text-label-xs font-medium">{project.videoCount || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5" title="Số lượng âm thanh (Audio)">
+                  <span className="material-symbols-outlined text-[16px]">audio_file</span>
+                  <span className="font-label-xs text-label-xs font-medium">{project.audioCount || 0}</span>
+                </div>
+              </div>
             </div>
             
             <div className="mt-5 pt-3.5 bg-surface-subtle -mx-5 -mb-5 px-5 py-3 rounded-b-2xl flex flex-col gap-2.5">

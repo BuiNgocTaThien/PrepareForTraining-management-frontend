@@ -8,6 +8,10 @@ export interface Project {
   status: ProjectStatus;
   isPinned?: boolean;
   isStarred?: boolean;
+  imageCount?: number;
+  documentCount?: number;
+  videoCount?: number;
+  audioCount?: number;
 }
 export interface ProjectMember {
   userId: number;

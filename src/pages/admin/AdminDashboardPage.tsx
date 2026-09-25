@@ -1,13 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { AppShell } from "../components/common/AppShell";
+import { AppShell } from "../../components/common/AppShell";
 import {
   createUser,
   listUsers,
   updateUserRole,
   updateUserStatus,
-} from "../services/adminUserService";
-import type { Role, User } from "../types/auth";
+} from "../../services/adminUserService";
+import type { Role, User } from "../../types/auth";
 export function AdminDashboardPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState("");

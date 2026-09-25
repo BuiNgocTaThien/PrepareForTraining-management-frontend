@@ -1,13 +1,13 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { DashboardPage } from "./pages/DashboardPage";
-import { LoginPage } from "./pages/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage";
-import { AdminDashboardPage } from "./pages/AdminDashboardPage";
-import { ProjectsPage } from "./pages/ProjectsPage";
-import { ProjectDetailPage } from "./pages/ProjectDetailPage";
+import { DashboardPage } from "./pages/dashboard/DashboardPage";
+import { LoginPage } from "./pages/auth/LoginPage";
+import { RegisterPage } from "./pages/auth/RegisterPage";
+import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
+import { ProjectsPage } from "./pages/project/list/ProjectsPage";
+import { ProjectDetailPage } from "./pages/project/detail/ProjectDetailPage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
-import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
-import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
 
 export default function App() {
   return (
