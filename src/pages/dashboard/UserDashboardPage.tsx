@@ -1,4 +1,4 @@
-import { AppShell } from "../components/common/AppShell";
+import { AppShell } from "../../components/common/AppShell";
 export function UserDashboardPage() {
   return (
     <AppShell>

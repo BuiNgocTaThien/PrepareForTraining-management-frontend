@@ -1,9 +1,10 @@
 import { apiClient } from "./apiClient";
 import type { ApiResponse, PaginatedData } from "../types/api";
 import type { Project, ProjectMember } from "../types/project";
-export const listProjects = (page: number = 0, size: number = 20, filter: string = "", sort: string = "createdAt,desc") => {
+export const listProjects = (page: number = 0, size: number = 20, filter: string = "", sort: string = "createdAt,desc", search: string = "") => {
   const queryParams = new URLSearchParams({ page: page.toString(), size: size.toString(), sort });
   if (filter) queryParams.append("filter", filter);
+  if (search) queryParams.append("search", search);
   return apiClient<ApiResponse<PaginatedData<Project>>>(`/projects?${queryParams.toString()}`);
 };
 export const getProject = (id: string) =>

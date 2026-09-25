@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -13,6 +13,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   const currentPath = location.pathname;
+  const [searchTerm, setSearchTerm] = useState(new URLSearchParams(location.search).get("search") || "");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const searchParams = new URLSearchParams(location.search);
+    if (searchTerm) {
+      searchParams.set("search", searchTerm);
+    } else {
+      searchParams.delete("search");
+    }
+    navigate(`/dashboard?${searchParams.toString()}`);
+  };
 
   return (
     <div className="bg-background font-body-md text-body min-h-screen">
@@ -83,20 +95,24 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="pl-72">
         <header className="fixed top-0 left-72 right-0 h-20 bg-surface/85 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)] px-gutter flex items-center justify-between gap-4">
           <div className="flex-1 max-w-xl">
-            <div className="relative flex items-center w-full">
+            <form onSubmit={handleSearch} className="relative flex items-center w-full">
               <span className="material-symbols-outlined absolute left-4 text-text-muted text-[20px]">search</span>
               <input 
                 type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Tìm kiếm dự án, tài liệu, thẻ..." 
                 className="w-full pl-11 pr-4 py-2.5 bg-surface-input-tint rounded-lg font-body-md text-body-md text-text-heading placeholder-text-muted focus:outline-none focus:bg-surface-card transition-all" 
               />
-            </div>
+            </form>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/dashboard?create=true')} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-text-heading text-on-primary font-label-md text-label-md shadow-[0_2px_6px_0_rgba(0,0,0,0.04)] hover:bg-on-background transition-all">
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              <span>Tạo dự án mới</span>
-            </button>
+            {user?.role !== "USER" && (
+              <button onClick={() => navigate('/dashboard?create=true')} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-text-heading text-on-primary font-label-md text-label-md shadow-[0_2px_6px_0_rgba(0,0,0,0.04)] hover:bg-on-background transition-all">
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                <span>Tạo dự án mới</span>
+              </button>
+            )}
             <button className="relative w-10 h-10 rounded-xl bg-surface-card flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">
               <span className="material-symbols-outlined text-[20px]">notifications</span>
               <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-status-danger"></span>

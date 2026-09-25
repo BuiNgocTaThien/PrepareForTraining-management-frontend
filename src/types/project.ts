@@ -11,6 +11,7 @@ export interface Project {
   imageCount?: number;
   documentCount?: number;
   videoCount?: number;
+  audioCount?: number;
 }
 export interface ProjectMember {
   userId: number;

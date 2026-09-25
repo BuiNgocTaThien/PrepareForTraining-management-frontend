@@ -125,6 +125,10 @@ export function ProjectList({ projects, onTogglePin, onToggleStar, onArchive, on
                   <span className="material-symbols-outlined text-[16px]">movie</span>
                   <span className="font-label-xs text-label-xs font-medium">{project.videoCount || 0}</span>
                 </div>
+                <div className="flex items-center gap-1.5" title="Số lượng âm thanh (Audio)">
+                  <span className="material-symbols-outlined text-[16px]">audio_file</span>
+                  <span className="font-label-xs text-label-xs font-medium">{project.audioCount || 0}</span>
+                </div>
               </div>
             </div>
             
