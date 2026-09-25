@@ -1,8 +1,8 @@
 import { apiClient } from "./apiClient";
 import type { ApiResponse, PaginatedData } from "../types/api";
 import type { Project, ProjectMember } from "../types/project";
-export const listProjects = (page: number = 0, size: number = 20, filter: string = "") => {
-  const queryParams = new URLSearchParams({ page: page.toString(), size: size.toString() });
+export const listProjects = (page: number = 0, size: number = 20, filter: string = "", sort: string = "createdAt,desc") => {
+  const queryParams = new URLSearchParams({ page: page.toString(), size: size.toString(), sort });
   if (filter) queryParams.append("filter", filter);
   return apiClient<ApiResponse<PaginatedData<Project>>>(`/projects?${queryParams.toString()}`);
 };
@@ -100,3 +100,6 @@ export const askChatbot = (projectId: string, question: string) => {
     return res.json();
   });
 };
+
+export const getDashboardStats = () =>
+  apiClient<ApiResponse<{activeProjects: number; totalDocuments: number; totalMembers: number}>>(`/projects/stats`);

@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AppShell } from "../components/common/AppShell";
 import { ProjectList } from "../components/project/ProjectList";
-import { createProject, listProjects, togglePinProject, toggleStarProject, archiveProject, restoreProject } from "../services/projectService";
+import { createProject, listProjects, togglePinProject, toggleStarProject, archiveProject, restoreProject, getDashboardStats } from "../services/projectService";
 import { useAuth } from "../context/AuthContext";
 import type { Project } from "../types/project";
 
@@ -22,19 +22,26 @@ export function ProjectsPage() {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const shouldCreate = searchParams.get("create") === "true";
-  const filter = searchParams.get("filter") || "";
+  
+  const defaultFilter = user?.role === "USER" ? "shared" : user?.role === "OWNER" ? "owned" : "all";
+  const [filter, setFilter] = useState(searchParams.get("filter") || defaultFilter);
+  const [sort, setSort] = useState("createdAt,desc");
+  
+  const [stats, setStats] = useState({ activeProjects: 0, totalDocuments: 0, totalMembers: 0 });
 
   const load = () => {
     setLoading(true);
-    listProjects(0, 20, filter)
+    listProjects(0, 20, filter === "all" ? "" : filter, sort)
       .then((r) => setProjects(r.data.content))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+      
+    getDashboardStats().then(r => setStats(r.data)).catch(console.error);
   };
 
   useEffect(() => {
     load();
-  }, [filter]);
+  }, [filter, sort]);
 
   useEffect(() => {
     if (shouldCreate && canCreate) {
@@ -133,7 +140,7 @@ export function ProjectsPage() {
                     <span className="material-symbols-outlined text-[22px]">auto_stories</span>
                   </div>
                   <div>
-                    <p className="font-headline-sm text-headline-sm text-text-heading leading-none">{projects.length < 10 ? `0${projects.length}` : projects.length}</p>
+                    <p className="font-headline-sm text-headline-sm text-text-heading leading-none">{stats.activeProjects < 10 ? `0${stats.activeProjects}` : stats.activeProjects}</p>
                     <span className="font-label-xs text-label-xs text-text-muted">Dự án hoạt động</span>
                   </div>
                 </div>
@@ -142,7 +149,7 @@ export function ProjectsPage() {
                     <span className="material-symbols-outlined text-[22px]">cloud_done</span>
                   </div>
                   <div>
-                    <p className="font-headline-sm text-headline-sm text-text-heading leading-none">0</p>
+                    <p className="font-headline-sm text-headline-sm text-text-heading leading-none">{stats.totalDocuments}</p>
                     <span className="font-label-xs text-label-xs text-text-muted">Tài liệu SRS/PDF</span>
                   </div>
                 </div>
@@ -151,7 +158,7 @@ export function ProjectsPage() {
                     <span className="material-symbols-outlined text-[22px]">group</span>
                   </div>
                   <div>
-                    <p className="font-headline-sm text-headline-sm text-text-heading leading-none">0</p>
+                    <p className="font-headline-sm text-headline-sm text-text-heading leading-none">{stats.totalMembers}</p>
                     <span className="font-label-xs text-label-xs text-text-muted">Thành viên tham gia</span>
                   </div>
                 </div>
@@ -161,28 +168,32 @@ export function ProjectsPage() {
             {/* Interactive Role-Switching Control Bar */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-2.5 rounded-2xl bg-surface-card shadow-[0_16px_40px_-12px_rgba(175,115,125,0.12)]">
               <div className="inline-flex p-1.5 rounded-xl bg-surface-subtle" role="tablist">
-                <button type="button" className="role-tab active flex items-center gap-2 px-4 py-2 rounded-lg font-label-md text-label-md transition-all duration-200 text-text-muted">
-                  <span className="material-symbols-outlined text-[18px]">view_agenda</span>
-                  <span>Tất cả dự án</span>
-                  <span className="px-2 py-0.5 rounded-full bg-white/20 font-label-xs text-label-xs">ADMIN ({projects.length})</span>
-                </button>
-                <button type="button" className="role-tab flex items-center gap-2 px-4 py-2 rounded-lg font-label-md text-label-md text-text-muted hover:text-text-heading transition-all duration-200">
-                  <span className="material-symbols-outlined text-[18px]">verified_user</span>
-                  <span>Tôi sở hữu</span>
-                  <span className="px-2 py-0.5 rounded-full bg-surface-container font-label-xs text-label-xs text-primary font-semibold">OWNER (0)</span>
-                </button>
-                <button type="button" className="role-tab flex items-center gap-2 px-4 py-2 rounded-lg font-label-md text-label-md hover:text-text-heading transition-all duration-200 bg-text-heading text-on-primary">
+                {user?.role === "ADMIN" && (
+                  <button type="button" onClick={() => setFilter("all")} className={`role-tab flex items-center gap-2 px-4 py-2 rounded-lg font-label-md text-label-md transition-all duration-200 ${filter === 'all' ? 'active bg-text-heading text-on-primary' : 'text-text-muted hover:text-text-heading'}`}>
+                    <span className="material-symbols-outlined text-[18px]">view_agenda</span>
+                    <span>Tất cả dự án</span>
+                  </button>
+                )}
+                {user?.role !== "USER" && (
+                  <button type="button" onClick={() => setFilter("owned")} className={`role-tab flex items-center gap-2 px-4 py-2 rounded-lg font-label-md text-label-md transition-all duration-200 ${filter === 'owned' ? 'active bg-text-heading text-on-primary' : 'text-text-muted hover:text-text-heading'}`}>
+                    <span className="material-symbols-outlined text-[18px]">verified_user</span>
+                    <span>Tôi sở hữu</span>
+                  </button>
+                )}
+                <button type="button" onClick={() => setFilter("shared")} className={`role-tab flex items-center gap-2 px-4 py-2 rounded-lg font-label-md text-label-md transition-all duration-200 ${filter === 'shared' ? 'active bg-text-heading text-on-primary' : 'text-text-muted hover:text-text-heading'}`}>
                   <span className="material-symbols-outlined text-[18px]">group_add</span>
                   <span>Được chia sẻ</span>
-                  <span className="px-2 py-0.5 rounded-full bg-surface-container font-label-xs text-label-xs text-text-body">USER (0)</span>
                 </button>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="relative">
-                  <button className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-surface-subtle hover:bg-surface-container font-label-sm text-label-sm text-text-heading transition-colors" type="button">
+                  <button 
+                    onClick={() => setSort(sort === "createdAt,desc" ? "createdAt,asc" : "createdAt,desc")}
+                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-surface-subtle hover:bg-surface-container font-label-sm text-label-sm text-text-heading transition-colors" type="button"
+                  >
                     <span className="material-symbols-outlined text-[18px] text-text-muted">sort</span>
-                    <span className="">Gần đây nhất</span>
-                    <span className="material-symbols-outlined text-[16px] text-text-muted">expand_more</span>
+                    <span className="">{sort === "createdAt,desc" ? "Mới nhất" : "Cũ nhất"}</span>
+                    <span className="material-symbols-outlined text-[16px] text-text-muted">swap_vert</span>
                   </button>
                 </div>
               </div>
@@ -215,12 +226,12 @@ export function ProjectsPage() {
 
           {/* MAIN SECTION: Recent Projects Grid */}
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-12">
-            {/* Left 8 Cols: Project Library Grid */}
-            <div className="lg:col-span-8 flex flex-col gap-6">
+            {/* Left 12 Cols: Project Library Grid */}
+            <div className="lg:col-span-12 flex flex-col gap-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-6 rounded-full bg-primary"></span>
-                  <h2 className="font-headline-md text-headline-md text-text-heading tracking-tight">Sổ dự án gần đây</h2>
+                  <h2 className="font-headline-md text-headline-md text-text-heading tracking-tight">Danh sách dự án</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-label-sm text-label-sm text-text-muted">Hiển thị {recentProjects.length} dự án</span>
@@ -233,7 +244,7 @@ export function ProjectsPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {/* Rapid Creation Card */}
                 {canCreate && (
                   <div 
@@ -290,24 +301,6 @@ export function ProjectsPage() {
                 ) : (
                   <ProjectList projects={recentProjects} onTogglePin={handleTogglePin} onToggleStar={handleToggleStar} onArchive={handleArchive} onRestore={handleRestore} />
                 )}
-              </div>
-            </div>
-
-            {/* Right 4 Cols: Realtime Activity Stream */}
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="p-6 rounded-2xl bg-surface-card shadow-[0_16px_40px_-12px_rgba(175,115,125,0.12)] flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-[20px]">history</span>
-                    <h3 className="font-headline-sm text-headline-sm text-text-heading">Hoạt động mới nhất</h3>
-                  </div>
-                  <button className="font-label-xs text-label-xs text-primary hover:underline">Làm mới</button>
-                </div>
-                <div className="flex flex-col gap-3.5">
-                  <div className="py-8 text-center text-text-muted font-body-sm">
-                    Chưa có hoạt động nào.
-                  </div>
-                </div>
               </div>
             </div>
           </div>
