@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -11,6 +12,24 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setSubmitting(true);
+        setError("");
+        await loginWithGoogle(tokenResponse.access_token);
+        navigate("/dashboard");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Xác thực Google thất bại. Vui lòng thử lại.");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    onError: () => {
+      setError("Có lỗi xảy ra khi kết nối với Google.");
+    }
+  });
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -50,7 +69,7 @@ export function LoginPage() {
                     <img 
                       alt="PrepareForTraining Logo" 
                       className="w-9 h-9 object-contain rounded-lg shadow-sm" 
-                      src="https://lh3.googleusercontent.com/aida/AEtjO1VIQDemEAicI9InjpYB9kml6t_FEgpsTvYd8mmtPc0BJax8nQjFrJRhlpIAyLwyBiqenfXWKVBD3GCLPPszRvO0Q5V2aks1BGuq4oRzEBCkWbnEToFsyFa5oEgAHoXfBxR3F2la4rUAkkbBXzEZXztn8PYBIXPz9pyCcFNoF_OZNahpP_hZofu3ox1jvbB_hKv4_xd75OEwJIJgQjTw-yFST60BF2PrTaNn_w4MKu9SUQxWMtHPmgoDGEqu"
+                      src="/logo.svg"
                     />
                     <div className="flex flex-col">
                       <span className="font-headline-sm text-headline-sm font-bold text-text-heading tracking-tight">PrepareForTraining</span>
@@ -126,7 +145,7 @@ export function LoginPage() {
                       <input type="checkbox" className="w-4 h-4 rounded text-text-heading accent-primary cursor-pointer" defaultChecked />
                       <span className="font-body-sm text-body-sm text-text-muted group-hover:text-text-heading transition-colors">Ghi nhớ đăng nhập</span>
                     </label>
-                    <a href="#" className="font-label-sm text-label-sm font-semibold text-primary hover:text-on-primary-fixed-variant transition-colors">Quên mật khẩu?</a>
+                    <Link to="/forgot-password" className="font-label-sm text-label-sm font-semibold text-primary hover:text-on-primary-fixed-variant transition-colors">Quên mật khẩu?</Link>
                   </div>
 
                   {/* Primary Submit CTA Button */}
@@ -156,24 +175,15 @@ export function LoginPage() {
                 </div>
 
                 {/* Social SSO Buttons */}
-                <div className="grid grid-cols-3 gap-3">
-                  <button type="button" className="flex items-center justify-center py-2.5 rounded-xl bg-surface-subtle hover:bg-surface-container-high transition-all shadow-sm hover:shadow text-text-heading group">
-                    <svg className="w-5 h-5 fill-current text-[#1877F2]" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
-                    </svg>
-                  </button>
-                  <button type="button" className="flex items-center justify-center py-2.5 rounded-xl bg-surface-subtle hover:bg-surface-container-high transition-all shadow-sm hover:shadow text-text-heading group">
+                <div className="flex flex-col gap-3">
+                  <button onClick={() => googleLogin()} type="button" className="flex w-full items-center justify-center space-x-2 py-3 rounded-xl bg-surface-subtle hover:bg-surface-container-high transition-all shadow-sm hover:shadow text-text-heading group font-body-md font-medium">
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z" fill="#EA4335"></path>
                       <path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5.1 3.7-8.9z" fill="#4285F4"></path>
                       <path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z" fill="#FBBC05"></path>
                       <path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z" fill="#34A853"></path>
                     </svg>
-                  </button>
-                  <button type="button" className="flex items-center justify-center py-2.5 rounded-xl bg-surface-subtle hover:bg-surface-container-high transition-all shadow-sm hover:shadow text-text-heading group">
-                    <svg className="w-5 h-5 fill-current text-text-heading" viewBox="0 0 24 24">
-                      <path clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fillRule="evenodd"></path>
-                    </svg>
+                    <span>Đăng nhập bằng Google</span>
                   </button>
                 </div>
               </div>
@@ -208,17 +218,7 @@ export function LoginPage() {
                 </div>
               </div>
 
-              {/* Center Hero Glass Card & Callout */}
-              <div className="relative z-10 max-w-sm my-auto px-4 py-6 rounded-2xl backdrop-blur-md bg-text-heading/20">
-                <span className="inline-block font-label-sm text-label-sm tracking-widest text-primary-fixed uppercase font-semibold mb-2">Knowledge & Project Workspace</span>
-                <h2 className="font-headline-xl text-headline-xl font-bold text-on-primary tracking-tight drop-shadow-md mb-2 leading-tight">PrepareForTraining</h2>
-                <p className="font-body-md text-body-md text-surface-container-lowest/90 font-medium drop-shadow-sm mb-6">
-                  Hệ thống lưu trữ, chuẩn hóa và onboarding tài liệu dự án chuyên nghiệp.
-                </p>
-                <Link to="/register" className="inline-flex items-center justify-center px-8 py-2.5 rounded-full bg-surface-card/15 hover:bg-surface-card/30 text-on-primary font-headline-sm text-headline-sm font-semibold tracking-wide backdrop-blur-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200">
-                  Đăng Ký
-                </Link>
-              </div>
+
 
               {/* Bottom System Feature Highlights */}
               <div className="relative z-10 w-full flex items-center justify-center space-x-6 text-on-primary/80 font-body-sm text-body-sm">

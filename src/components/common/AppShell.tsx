@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <img 
             alt="PrepareForTraining" 
             className="h-8 w-auto object-contain" 
-            src="https://lh3.googleusercontent.com/aida/AEtjO1Ud5zSwAdWxdejSv9OqmmYeOtkNy_uk3Kz1RZu8xXgjeM2IUPBVb97-LMKXpRtRDlfGMIYCIFhgmsH2RT6kPIeZKSOIYRpqj0cHPlQ2KmOqFXCLJxOvutMlYo9iYUC7a95ynhAHnBoeQ9sUQVF1Wa3ds-4z34VqHiosgq502BM0euUwGZI64aAnd4sOjtIxHpMEmnK2_Pbxp_q3MuZMgfmXxnx0kuKBJJfuouNnU-tTpVuVxt_5SZwCEIKs"
+            src="/logo.svg"
           />
           <div className="flex flex-col">
             <span className="font-headline-sm text-headline-sm text-text-heading leading-tight">PrepareForTraining</span>

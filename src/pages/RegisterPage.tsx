@@ -9,6 +9,7 @@ export function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -16,6 +17,12 @@ export function RegisterPage() {
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       await register(email, password, fullName);
@@ -51,7 +58,7 @@ export function RegisterPage() {
                     <img 
                       alt="PrepareForTraining Logo" 
                       className="w-9 h-9 object-contain rounded-lg shadow-sm" 
-                      src="https://lh3.googleusercontent.com/aida/AEtjO1VIQDemEAicI9InjpYB9kml6t_FEgpsTvYd8mmtPc0BJax8nQjFrJRhlpIAyLwyBiqenfXWKVBD3GCLPPszRvO0Q5V2aks1BGuq4oRzEBCkWbnEToFsyFa5oEgAHoXfBxR3F2la4rUAkkbBXzEZXztn8PYBIXPz9pyCcFNoF_OZNahpP_hZofu3ox1jvbB_hKv4_xd75OEwJIJgQjTw-yFST60BF2PrTaNn_w4MKu9SUQxWMtHPmgoDGEqu"
+                      src="/logo.svg"
                     />
                     <div className="flex flex-col">
                       <span className="font-headline-sm text-headline-sm font-bold text-text-heading tracking-tight">PrepareForTraining</span>
@@ -138,6 +145,32 @@ export function RegisterPage() {
                     </div>
                   </div>
 
+                  {/* Confirm Password Input */}
+                  <div>
+                    <label className="block font-label-sm text-label-sm font-semibold text-text-heading mb-1.5" htmlFor="confirmPassword">Nhập lại mật khẩu</label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-outline pointer-events-none material-symbols-outlined text-[20px]">lock</span>
+                      <input 
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"} 
+                        required 
+                        minLength={6}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="•••••••• (Nhập lại mật khẩu)" 
+                        className="w-full pl-11 pr-11 py-3 bg-surface-input-tint rounded-xl font-body-md text-body-md text-text-heading placeholder-outline transition-all duration-200 outline-none focus:bg-surface-card focus:shadow-[0_0_0_2px_#e8b4b8]" 
+                      />
+                      <button 
+                        type="button" 
+                        className="absolute right-3.5 text-outline hover:text-text-heading transition-colors"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label="Hiện mật khẩu"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">{showPassword ? "visibility_off" : "visibility"}</span>
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Primary Submit CTA Button */}
                   <button 
                     type="submit" 
@@ -189,14 +222,7 @@ export function RegisterPage() {
                 </div>
               </div>
 
-              {/* Center Hero Glass Card & Callout */}
-              <div className="relative z-10 max-w-sm my-auto px-4 py-6 rounded-2xl backdrop-blur-md bg-text-heading/20">
-                <span className="inline-block font-label-sm text-label-sm tracking-widest text-primary-fixed uppercase font-semibold mb-2">Join the Workspace</span>
-                <h2 className="font-headline-xl text-headline-xl font-bold text-on-primary tracking-tight drop-shadow-md mb-2 leading-tight">PrepareForTraining</h2>
-                <p className="font-body-md text-body-md text-surface-container-lowest/90 font-medium drop-shadow-sm mb-6">
-                  Bắt đầu chia sẻ, quản lý và tổ chức tài liệu dự án của bạn một cách chuyên nghiệp.
-                </p>
-              </div>
+
 
               {/* Bottom System Feature Highlights */}
               <div className="relative z-10 w-full flex items-center justify-center space-x-6 text-on-primary/80 font-body-sm text-body-sm">
