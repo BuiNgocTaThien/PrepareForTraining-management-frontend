@@ -26,6 +26,8 @@ export function ProjectsPage() {
   const [filter, setFilter] = useState(searchParams.get("filter") || defaultFilter);
   const [sort, setSort] = useState("createdAt,desc");
   const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -39,8 +41,11 @@ export function ProjectsPage() {
 
   const load = () => {
     setLoading(true);
-    listProjects(0, 20, filter === "all" ? "" : filter, sort, search)
-      .then((r) => setProjects(r.data.content))
+    listProjects(page, 12, filter === "all" ? "" : filter, sort, search)
+      .then((r) => {
+        setProjects(r.data.content);
+        setTotalPages(r.data.totalPages);
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
 
@@ -48,8 +53,12 @@ export function ProjectsPage() {
   };
 
   useEffect(() => {
-    load();
+    setPage(0);
   }, [filter, sort, search]);
+
+  useEffect(() => {
+    load();
+  }, [filter, sort, search, page]);
 
   useEffect(() => {
     if (shouldCreate && canCreate) {
@@ -223,13 +232,34 @@ export function ProjectsPage() {
                 {canCreate && <CreateProjectCard onSubmit={submit} />}
 
                 {loading ? (
-                  <div className="flex justify-center items-center min-h-[220px]">
+                  <div className="flex justify-center items-center min-h-[220px] col-span-full">
                     <span className="material-symbols-outlined animate-spin text-[32px] text-primary">progress_activity</span>
                   </div>
                 ) : (
                   <ProjectList projects={recentProjects} onTogglePin={handleTogglePin} onToggleStar={handleToggleStar} onArchive={handleArchive} onRestore={handleRestore} />
                 )}
               </div>
+
+              {/* Pagination Controls */}
+              {!loading && totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-8">
+                  <button 
+                    disabled={page === 0}
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    className="px-3 py-1.5 rounded-lg bg-surface-card shadow-sm hover:bg-surface-container-high disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                  </button>
+                  <span className="font-label-sm text-text-muted px-4">Trang {page + 1} / {totalPages}</span>
+                  <button 
+                    disabled={page >= totalPages - 1}
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    className="px-3 py-1.5 rounded-lg bg-surface-card shadow-sm hover:bg-surface-container-high disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
