@@ -76,6 +76,12 @@ export const deleteDocument = (projectId: string, documentId: number) =>
     method: "DELETE",
   });
 
+export const renameDocument = (projectId: string, documentId: number, newName: string) =>
+  apiClient<ApiResponse<any>>(`/projects/${projectId}/documents/${documentId}/rename`, {
+    method: "PUT",
+    body: JSON.stringify({ newName }),
+  });
+
 export const downloadDocument = (projectId: string, documentId: number) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/api/v1";
   return fetch(`${API_BASE_URL}/projects/${projectId}/documents/${documentId}/download`, {
