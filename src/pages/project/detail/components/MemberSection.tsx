@@ -15,24 +15,27 @@ interface MemberSectionProps {
 
 export function MemberSection({ projectId, project, members, canManage, currentUser, onRefresh, onError }: MemberSectionProps) {
   const [email, setEmail] = useState("");
+  const [localError, setLocalError] = useState("");
 
   const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
+    setLocalError("");
     try {
       await addMember(projectId, email);
       setEmail("");
       onRefresh();
     } catch (err) {
-      onError(err instanceof Error ? err.message : "Không thể thêm thành viên");
+      setLocalError(err instanceof Error ? err.message : "Không thể thêm thành viên");
     }
   };
 
   const handleRemove = async (userId: number) => {
+    setLocalError("");
     try {
       await removeMember(projectId, userId);
       onRefresh();
     } catch (err) {
-      onError(err instanceof Error ? err.message : "Không thể xóa thành viên");
+      setLocalError(err instanceof Error ? err.message : "Không thể xóa thành viên");
     }
   };
 
@@ -51,6 +54,12 @@ export function MemberSection({ projectId, project, members, canManage, currentU
             <span className="material-symbols-outlined text-[20px]">manage_accounts</span>
           </div>
         </div>
+
+        {localError && (
+          <div className="p-3 rounded-xl bg-error-container text-error font-body-sm text-sm">
+            {localError}
+          </div>
+        )}
 
         {canManage && (
           <form onSubmit={handleAdd} className="p-4 rounded-xl bg-surface-container-low space-y-3">

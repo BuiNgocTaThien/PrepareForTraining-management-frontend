@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadDocument, deleteDocument, downloadDocument } from "../../../../services/projectService";
+import { uploadDocument, deleteDocument, downloadDocument, renameDocument } from "../../../../services/projectService";
 import type { Document } from "../../../../types/project";
 import type { User } from "../../../../types/auth";
 
@@ -14,6 +14,9 @@ interface DocumentSectionProps {
 
 export function DocumentSection({ projectId, documents, canManage, currentUser, onRefresh, onError }: DocumentSectionProps) {
   const [uploading, setUploading] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const [editingDocId, setEditingDocId] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState("");
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -25,11 +28,12 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
     }
 
     setUploading(true);
+    setLocalError("");
     try {
       await uploadDocument(projectId, file);
       onRefresh();
     } catch (err) {
-      onError(err instanceof Error ? err.message : "Không thể upload file");
+      setLocalError(err instanceof Error ? err.message : "Không thể upload file");
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -38,11 +42,12 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
 
   const handleDeleteFile = async (docId: number) => {
     if (!confirm("Bạn có chắc chắn muốn xóa tài liệu này?")) return;
+    setLocalError("");
     try {
       await deleteDocument(projectId, docId);
       onRefresh();
     } catch (err) {
-      onError(err instanceof Error ? err.message : "Không thể xóa tài liệu");
+      setLocalError(err instanceof Error ? err.message : "Không thể xóa tài liệu");
     }
   };
 
@@ -76,7 +81,7 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
       link.remove();
       setTimeout(() => window.URL.revokeObjectURL(url), 100);
     } catch (err) {
-      onError(err instanceof Error ? err.message : "Không thể tải tài liệu");
+      setLocalError(err instanceof Error ? err.message : "Không thể tải tài liệu");
     }
   };
 
@@ -87,7 +92,18 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (err) {
-      onError(err instanceof Error ? err.message : "Không thể xem tài liệu");
+      setLocalError(err instanceof Error ? err.message : "Không thể xem tài liệu");
+    }
+  };
+
+  const handleRename = async (docId: number) => {
+    if (!editingName.trim()) return;
+    try {
+      await renameDocument(projectId, docId, editingName);
+      setEditingDocId(null);
+      onRefresh();
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : "Không thể đổi tên tài liệu");
     }
   };
 
@@ -102,6 +118,12 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
           <p className="font-body-sm text-body-sm text-text-muted mt-0.5">Kho lưu trữ tài liệu chuẩn</p>
         </div>
       </div>
+
+      {localError && (
+        <div className="p-3 rounded-xl bg-error-container text-error font-body-sm text-sm">
+          {localError}
+        </div>
+      )}
 
       <div className="relative group rounded-2xl bg-gradient-to-b from-surface-card to-surface-container-low/60 p-6 md:p-8 text-center transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
         <input 
@@ -145,8 +167,30 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
                      : 'insert_drive_file'}
                   </span>
                 </div>
-                <div className="min-w-0">
-                  <p className="font-label-md text-label-md font-semibold text-text-heading truncate group-hover:text-primary transition-colors" title={doc.fileName}>{doc.fileName}</p>
+                <div className="min-w-0 flex-1">
+                  {editingDocId === doc.id ? (
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="text" 
+                        value={editingName} 
+                        onChange={(e) => setEditingName(e.target.value)} 
+                        className="font-label-md text-label-md font-semibold text-text-heading border border-surface-border rounded px-2 py-1 bg-surface-container w-full outline-none focus:border-primary" 
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleRename(doc.id);
+                          if (e.key === 'Escape') setEditingDocId(null);
+                        }}
+                        autoFocus
+                      />
+                      <button onClick={(e) => { e.stopPropagation(); handleRename(doc.id); }} className="text-primary hover:text-primary-dark">
+                        <span className="material-symbols-outlined text-[18px]">check</span>
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); setEditingDocId(null); }} className="text-error hover:text-error-dark">
+                        <span className="material-symbols-outlined text-[18px]">close</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="font-label-md text-label-md font-semibold text-text-heading truncate group-hover:text-primary transition-colors" title={doc.fileName}>{doc.fileName}</p>
+                  )}
                   <div className="flex items-center gap-2 mt-0.5 text-xs text-text-muted">
                     <span className="font-medium">{formatFileSize(doc.fileSize)}</span>
                     <span>•</span>
@@ -157,13 +201,19 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); handleView(doc.id, doc.contentType); }}
-                  className="w-10 h-10 rounded-lg bg-surface-container-low hover:bg-primary/10 hover:text-primary text-text-muted flex items-center justify-center transition-colors"
-                  title="Xem tài liệu"
-                >
-                  <span className="material-symbols-outlined text-[18px]">visibility</span>
-                </button>
+                {(currentUser?.role === "ADMIN" || currentUser?.fullName === doc.uploaderName || canManage) && (
+                  <button 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setEditingDocId(doc.id); 
+                      setEditingName(doc.fileName); 
+                    }}
+                    className="w-10 h-10 rounded-lg bg-surface-container-low hover:bg-primary/10 hover:text-primary text-text-muted flex items-center justify-center transition-colors"
+                    title="Đổi tên tài liệu"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                  </button>
+                )}
                 <button 
                   onClick={(e) => { e.stopPropagation(); handleDownload(doc.id, doc.fileName); }}
                   className="w-10 h-10 rounded-lg bg-surface-container-low hover:bg-primary/10 hover:text-primary text-text-muted flex items-center justify-center transition-colors"

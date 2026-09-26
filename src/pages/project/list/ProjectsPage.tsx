@@ -25,12 +25,21 @@ export function ProjectsPage() {
   const defaultFilter = user?.role === "USER" ? "shared" : user?.role === "OWNER" ? "owned" : "all";
   const [filter, setFilter] = useState(searchParams.get("filter") || defaultFilter);
   const [sort, setSort] = useState("createdAt,desc");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const filterParam = params.get("filter");
+    const searchParam = params.get("search");
+    setFilter(filterParam || defaultFilter);
+    setSearch(searchParam || "");
+  }, [location.search, defaultFilter]);
 
   const [stats, setStats] = useState({ activeProjects: 0, totalDocuments: 0, totalMembers: 0 });
 
   const load = () => {
     setLoading(true);
-    listProjects(0, 20, filter === "all" ? "" : filter, sort)
+    listProjects(0, 20, filter === "all" ? "" : filter, sort, search)
       .then((r) => setProjects(r.data.content))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -40,7 +49,7 @@ export function ProjectsPage() {
 
   useEffect(() => {
     load();
-  }, [filter, sort]);
+  }, [filter, sort, search]);
 
   useEffect(() => {
     if (shouldCreate && canCreate) {
