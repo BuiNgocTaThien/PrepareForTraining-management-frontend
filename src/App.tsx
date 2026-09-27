@@ -8,10 +8,12 @@ import { ProjectDetailPage } from "./pages/project/detail/ProjectDetailPage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import LandingPage from "./pages/landing/LandingPage";
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
