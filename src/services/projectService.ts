@@ -115,18 +115,10 @@ export const downloadDocument = (projectId: string, documentId: number) => {
 // ==========================================
 
 export const askChatbot = (projectId: string, question: string, history: any[] = []) => {
-  // Chatbot gọi sang một server khác (Cổng 8000 của Python FastAPI)
-  return fetch(`http://localhost:8000/api/v1/chat`, {
+  return apiClient<ApiResponse<{ answer: string }>>(`/ai/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-    },
     body: JSON.stringify({ projectId: parseInt(projectId), question, history })
-  }).then(res => {
-    if (!res.ok) throw new Error("Chatbot failed");
-    return res.json();
-  });
+  }).then(res => res.data);
 };
 
 export const getDashboardStats = () =>
