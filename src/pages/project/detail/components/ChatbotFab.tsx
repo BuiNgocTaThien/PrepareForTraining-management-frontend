@@ -21,7 +21,7 @@ export function ChatbotFab({ projectId }: ChatbotFabProps) {
     setChatLoading(true);
     
     try {
-      const res = await askChatbot(projectId, questionToAsk);
+      const res = await askChatbot(projectId, questionToAsk, chatMessages);
       setChatMessages(prev => [...prev, { role: "bot", content: res.answer }]);
     } catch (err) {
       setChatMessages(prev => [...prev, { role: "bot", content: "❌ Rất tiếc, tôi không thể trả lời lúc này do lỗi kết nối với máy chủ AI." }]);
