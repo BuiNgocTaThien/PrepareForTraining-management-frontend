@@ -88,18 +88,18 @@ export default {
         "space-xs": "0.25rem"
       },
       fontFamily: {
-        "headline-lg-mobile": ["Plus Jakarta Sans"],
-        "headline-xl-mobile": ["Plus Jakarta Sans"],
-        "body-lg": ["Inter"],
-        "body-md": ["Inter"],
-        "label-md": ["Inter"],
-        "headline-sm": ["Plus Jakarta Sans"],
-        "headline-xl": ["Plus Jakarta Sans"],
-        "body-sm": ["Inter"],
-        "label-sm": ["Inter"],
-        "label-xs": ["Inter"],
-        "headline-md": ["Plus Jakarta Sans"],
-        "headline-lg": ["Plus Jakarta Sans"]
+        "headline-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-xl-mobile": ["Plus Jakarta Sans", "sans-serif"],
+        "body-lg": ["Inter", "sans-serif"],
+        "body-md": ["Inter", "sans-serif"],
+        "label-md": ["Inter", "sans-serif"],
+        "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-xl": ["Plus Jakarta Sans", "sans-serif"],
+        "body-sm": ["Inter", "sans-serif"],
+        "label-sm": ["Inter", "sans-serif"],
+        "label-xs": ["Inter", "sans-serif"],
+        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-lg": ["Plus Jakarta Sans", "sans-serif"]
       },
       fontSize: {
         "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "700" }],
@@ -117,5 +117,7 @@ export default {
       }
     }
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

@@ -9,12 +9,14 @@ import {
   getCurrentUser,
   login as loginApi,
   register as registerApi,
+  loginWithGoogleApi,
 } from "../services/authService";
 import type { User } from "../types/auth";
 interface AuthValue {
   user: User | null;
   loading: boolean;
   login(email: string, password: string): Promise<User>;
+  loginWithGoogle(accessToken: string): Promise<User>;
   register(email: string, password: string, fullName: string): Promise<User>;
   logout(): void;
 }
@@ -41,6 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const r = await loginApi(email, password);
     return save(r.data.accessToken, r.data.user);
   };
+  const loginWithGoogle = async (accessToken: string) => {
+    const r = await loginWithGoogleApi(accessToken);
+    return save(r.data.accessToken, r.data.user);
+  };
   const register = async (
     email: string,
     password: string,
@@ -54,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
