@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadDocument, deleteDocument, downloadDocument, renameDocument } from "../../../../services/projectService";
+import { uploadDocument, deleteDocument, downloadDocument, renameDocument, reloadAiKnowledge } from "../../../../services/projectService";
 import type { Document } from "../../../../types/project";
 import type { User } from "../../../../types/auth";
 
@@ -31,6 +31,11 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
     setLocalError("");
     try {
       await uploadDocument(projectId, file);
+      try {
+        await reloadAiKnowledge(projectId);
+      } catch (aiErr) {
+        console.error("AI Sync failed", aiErr);
+      }
       onRefresh();
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : "Không thể upload file");
@@ -45,6 +50,11 @@ export function DocumentSection({ projectId, documents, canManage, currentUser, 
     setLocalError("");
     try {
       await deleteDocument(projectId, docId);
+      try {
+        await reloadAiKnowledge(projectId);
+      } catch (aiErr) {
+        console.error("AI Sync failed", aiErr);
+      }
       onRefresh();
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : "Không thể xóa tài liệu");

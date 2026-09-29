@@ -114,11 +114,17 @@ export const downloadDocument = (projectId: string, documentId: number) => {
 // TÍCH HỢP AI CHATBOT
 // ==========================================
 
-export const askChatbot = (projectId: string, question: string, history: any[] = []) => {
+export const askChatbot = (projectId: string, question: string, history: any[] = [], documentSource?: string[]) => {
   return apiClient<ApiResponse<{ answer: string }>>(`/ai/chat`, {
     method: "POST",
-    body: JSON.stringify({ projectId: parseInt(projectId), question, history })
+    body: JSON.stringify({ projectId: parseInt(projectId), question, history, documentSource })
   }).then(res => res.data);
+};
+
+export const reloadAiKnowledge = (projectId: string) => {
+  return apiClient<ApiResponse<any>>(`/ai/reload/${projectId}`, {
+    method: "POST"
+  });
 };
 
 export const getDashboardStats = () =>

@@ -8,7 +8,7 @@ import {
   archiveProject,
   listDocuments,
 } from "../../../services/projectService";
-import { ChatbotFab } from "./components/ChatbotFab";
+import { ChatFullscreen } from "./components/ChatFullscreen";
 import { MemberSection } from "./components/MemberSection";
 import { DocumentSection } from "./components/DocumentSection";
 import { useAuth } from "../../../context/AuthContext";
@@ -43,6 +43,12 @@ export function ProjectDetailPage() {
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+  };
+  
+  const refreshDocs = () => {
+    listDocuments(id)
+      .then((d) => setDocuments(d.data))
+      .catch((e) => console.error("Refresh docs error:", e));
   };
 
   useEffect(load, [id]);
@@ -242,7 +248,7 @@ export function ProjectDetailPage() {
         </div>
       </div>
 
-      <ChatbotFab projectId={id} />
+      <ChatFullscreen projectId={id} documents={documents} onRefreshDocs={refreshDocs} />
 
     </AppShell>
   );
