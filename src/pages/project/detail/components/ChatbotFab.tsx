@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { askChatbot } from "../../../../services/projectService";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatbotFabProps {
   projectId: string;
@@ -60,9 +62,17 @@ export function ChatbotFab({ projectId }: ChatbotFabProps) {
               ) : (
                 <>
                   {chatMessages.map((msg, idx) => (
-                    <div key={idx} className={`flex flex-col max-w-[85%] ${msg.role === 'user' ? 'self-end items-end' : 'self-start items-start'}`}>
-                      <div className={`p-3 rounded-2xl whitespace-pre-wrap shadow-sm ${msg.role === 'user' ? 'bg-primary text-on-primary rounded-tr-sm' : 'bg-surface-card text-text-heading border border-surface-container-low rounded-tl-sm'}`}>
-                        {msg.content}
+                    <div key={idx} className={`flex flex-col max-w-[90%] ${msg.role === 'user' ? 'self-end items-end' : 'self-start items-start'}`}>
+                      <div className={`p-4 rounded-2xl shadow-sm overflow-x-auto ${msg.role === 'user' ? 'bg-primary text-on-primary rounded-tr-sm' : 'bg-surface-card text-text-heading border border-surface-container-low rounded-tl-sm'}`}>
+                        {msg.role === 'user' ? (
+                          <div className="whitespace-pre-wrap">{msg.content}</div>
+                        ) : (
+                          <div className="prose prose-sm prose-primary dark:prose-invert max-w-none">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

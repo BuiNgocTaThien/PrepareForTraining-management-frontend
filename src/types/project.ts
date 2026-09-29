@@ -28,4 +28,5 @@ export interface Document {
   contentType: string;
   uploaderName: string;
   createdAt: string;
+  storagePath?: string;
 }
