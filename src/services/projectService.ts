@@ -114,7 +114,7 @@ export const downloadDocument = (projectId: string, documentId: number) => {
 // TÍCH HỢP AI CHATBOT
 // ==========================================
 
-export const askChatbot = (projectId: string, question: string) => {
+export const askChatbot = (projectId: string, question: string, history: any[] = []) => {
   // Chatbot gọi sang một server khác (Cổng 8000 của Python FastAPI)
   return fetch(`http://localhost:8000/api/v1/chat`, {
     method: "POST",
@@ -122,7 +122,7 @@ export const askChatbot = (projectId: string, question: string) => {
       "Content-Type": "application/json",
       'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
     },
-    body: JSON.stringify({ projectId: parseInt(projectId), question })
+    body: JSON.stringify({ projectId: parseInt(projectId), question, history })
   }).then(res => {
     if (!res.ok) throw new Error("Chatbot failed");
     return res.json();

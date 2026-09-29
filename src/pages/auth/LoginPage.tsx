@@ -66,6 +66,9 @@ export function LoginPage() {
                 {/* Brand & System Role Hints */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-2.5">
+                    <Link to="/" className="flex items-center justify-center p-1.5 -ml-1.5 rounded-full hover:bg-surface-variant transition-colors group" title="Trở về trang chủ">
+                      <span className="material-symbols-outlined text-text-muted group-hover:text-text-heading text-[20px]">arrow_back</span>
+                    </Link>
                     <img 
                       alt="PrepareForTraining Logo" 
                       className="w-9 h-9 object-contain rounded-lg shadow-sm" 
